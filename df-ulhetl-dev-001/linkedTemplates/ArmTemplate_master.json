@@ -15,21 +15,113 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorageTest'"
 		},
+		"LS_ADLS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_ADLS'"
+		},
+		"LS_ADLS_RAW_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_ADLS_RAW'"
+		},
+		"LS_ADLS_Sink_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_ADLS_Sink'"
+		},
+		"LS_ADLS_Source_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_ADLS_Source'"
+		},
+		"LS_CSV_TO_PARQUET_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_CSV_TO_PARQUET'"
+		},
+		"LS_SFTP_ADLS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_SFTP_ADLS'"
+		},
+		"LS_SF_Raw_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_SF_Raw'"
+		},
+		"LS_SINK_ADLS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_SINK_ADLS'"
+		},
+		"LS_SRC_ADLS_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'LS_SRC_ADLS'"
+		},
 		"LS_Snowflake_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_Snowflake'"
+		},
+		"LS_Snowflake_Raw_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_Snowflake_Raw'"
 		},
 		"LS_Snowflake_Upperline_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'LS_Snowflake_Upperline'"
 		},
+		"ls_blob_stulhetldev001_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_blob_stulhetldev001'"
+		},
 		"AzureDataLakeStorageTest_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
 		},
+		"LS_ADLS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_ADLS_RAW_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_ADLS_Sink_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_ADLS_Source_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_BLOB_STAGE_sasUri": {
+			"type": "secureString",
+			"metadata": "Secure string for 'sasUri' of 'LS_BLOB_STAGE'"
+		},
+		"LS_CSV_TO_PARQUET_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_SFTP_ADLS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ulhsftpstorage.dfs.core.windows.net/"
+		},
+		"LS_SF_Raw_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_SINK_ADLS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_SRC_ADLS_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://ulhsftpstorage.dfs.core.windows.net/"
+		},
 		"LS_Snowflake_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_Snowflake_Raw_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "UPPERLINE"
+		},
+		"LS_Snowflake_Raw_properties_typeProperties_role": {
+			"type": "string",
+			"defaultValue": "ACCOUNTADMIN"
 		},
 		"LS_Snowflake_Upperline_properties_typeProperties_database": {
 			"type": "string",
@@ -72,17 +164,86 @@
 					"AzureDataLakeStorageTest_accountKey": {
 						"value": "[parameters('AzureDataLakeStorageTest_accountKey')]"
 					},
+					"LS_ADLS_accountKey": {
+						"value": "[parameters('LS_ADLS_accountKey')]"
+					},
+					"LS_ADLS_RAW_accountKey": {
+						"value": "[parameters('LS_ADLS_RAW_accountKey')]"
+					},
+					"LS_ADLS_Sink_accountKey": {
+						"value": "[parameters('LS_ADLS_Sink_accountKey')]"
+					},
+					"LS_ADLS_Source_accountKey": {
+						"value": "[parameters('LS_ADLS_Source_accountKey')]"
+					},
+					"LS_CSV_TO_PARQUET_accountKey": {
+						"value": "[parameters('LS_CSV_TO_PARQUET_accountKey')]"
+					},
+					"LS_SFTP_ADLS_accountKey": {
+						"value": "[parameters('LS_SFTP_ADLS_accountKey')]"
+					},
+					"LS_SF_Raw_accountKey": {
+						"value": "[parameters('LS_SF_Raw_accountKey')]"
+					},
+					"LS_SINK_ADLS_accountKey": {
+						"value": "[parameters('LS_SINK_ADLS_accountKey')]"
+					},
+					"LS_SRC_ADLS_accountKey": {
+						"value": "[parameters('LS_SRC_ADLS_accountKey')]"
+					},
 					"LS_Snowflake_accountKey": {
 						"value": "[parameters('LS_Snowflake_accountKey')]"
+					},
+					"LS_Snowflake_Raw_password": {
+						"value": "[parameters('LS_Snowflake_Raw_password')]"
 					},
 					"LS_Snowflake_Upperline_password": {
 						"value": "[parameters('LS_Snowflake_Upperline_password')]"
 					},
+					"ls_blob_stulhetldev001_connectionString": {
+						"value": "[parameters('ls_blob_stulhetldev001_connectionString')]"
+					},
 					"AzureDataLakeStorageTest_properties_typeProperties_url": {
 						"value": "[parameters('AzureDataLakeStorageTest_properties_typeProperties_url')]"
 					},
+					"LS_ADLS_properties_typeProperties_url": {
+						"value": "[parameters('LS_ADLS_properties_typeProperties_url')]"
+					},
+					"LS_ADLS_RAW_properties_typeProperties_url": {
+						"value": "[parameters('LS_ADLS_RAW_properties_typeProperties_url')]"
+					},
+					"LS_ADLS_Sink_properties_typeProperties_url": {
+						"value": "[parameters('LS_ADLS_Sink_properties_typeProperties_url')]"
+					},
+					"LS_ADLS_Source_properties_typeProperties_url": {
+						"value": "[parameters('LS_ADLS_Source_properties_typeProperties_url')]"
+					},
+					"LS_BLOB_STAGE_sasUri": {
+						"value": "[parameters('LS_BLOB_STAGE_sasUri')]"
+					},
+					"LS_CSV_TO_PARQUET_properties_typeProperties_url": {
+						"value": "[parameters('LS_CSV_TO_PARQUET_properties_typeProperties_url')]"
+					},
+					"LS_SFTP_ADLS_properties_typeProperties_url": {
+						"value": "[parameters('LS_SFTP_ADLS_properties_typeProperties_url')]"
+					},
+					"LS_SF_Raw_properties_typeProperties_url": {
+						"value": "[parameters('LS_SF_Raw_properties_typeProperties_url')]"
+					},
+					"LS_SINK_ADLS_properties_typeProperties_url": {
+						"value": "[parameters('LS_SINK_ADLS_properties_typeProperties_url')]"
+					},
+					"LS_SRC_ADLS_properties_typeProperties_url": {
+						"value": "[parameters('LS_SRC_ADLS_properties_typeProperties_url')]"
+					},
 					"LS_Snowflake_properties_typeProperties_url": {
 						"value": "[parameters('LS_Snowflake_properties_typeProperties_url')]"
+					},
+					"LS_Snowflake_Raw_properties_typeProperties_database": {
+						"value": "[parameters('LS_Snowflake_Raw_properties_typeProperties_database')]"
+					},
+					"LS_Snowflake_Raw_properties_typeProperties_role": {
+						"value": "[parameters('LS_Snowflake_Raw_properties_typeProperties_role')]"
 					},
 					"LS_Snowflake_Upperline_properties_typeProperties_database": {
 						"value": "[parameters('LS_Snowflake_Upperline_properties_typeProperties_database')]"

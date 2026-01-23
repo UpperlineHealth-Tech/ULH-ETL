@@ -11,17 +11,86 @@
 		"AzureDataLakeStorageTest_accountKey": {
 			"value": ""
 		},
+		"LS_ADLS_accountKey": {
+			"value": ""
+		},
+		"LS_ADLS_RAW_accountKey": {
+			"value": ""
+		},
+		"LS_ADLS_Sink_accountKey": {
+			"value": ""
+		},
+		"LS_ADLS_Source_accountKey": {
+			"value": ""
+		},
+		"LS_CSV_TO_PARQUET_accountKey": {
+			"value": ""
+		},
+		"LS_SFTP_ADLS_accountKey": {
+			"value": ""
+		},
+		"LS_SF_Raw_accountKey": {
+			"value": ""
+		},
+		"LS_SINK_ADLS_accountKey": {
+			"value": ""
+		},
+		"LS_SRC_ADLS_accountKey": {
+			"value": ""
+		},
 		"LS_Snowflake_accountKey": {
+			"value": ""
+		},
+		"LS_Snowflake_Raw_password": {
 			"value": ""
 		},
 		"LS_Snowflake_Upperline_password": {
 			"value": ""
 		},
+		"ls_blob_stulhetldev001_connectionString": {
+			"value": ""
+		},
 		"AzureDataLakeStorageTest_properties_typeProperties_url": {
 			"value": "https://stulhetldev001.dfs.core.windows.net/"
 		},
+		"LS_ADLS_properties_typeProperties_url": {
+			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_ADLS_RAW_properties_typeProperties_url": {
+			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_ADLS_Sink_properties_typeProperties_url": {
+			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_ADLS_Source_properties_typeProperties_url": {
+			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_BLOB_STAGE_sasUri": {
+			"value": ""
+		},
+		"LS_CSV_TO_PARQUET_properties_typeProperties_url": {
+			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_SFTP_ADLS_properties_typeProperties_url": {
+			"value": "https://ulhsftpstorage.dfs.core.windows.net/"
+		},
+		"LS_SF_Raw_properties_typeProperties_url": {
+			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_SINK_ADLS_properties_typeProperties_url": {
+			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_SRC_ADLS_properties_typeProperties_url": {
+			"value": "https://ulhsftpstorage.dfs.core.windows.net/"
+		},
 		"LS_Snowflake_properties_typeProperties_url": {
 			"value": "https://stulhetldev001.dfs.core.windows.net/"
+		},
+		"LS_Snowflake_Raw_properties_typeProperties_database": {
+			"value": "UPPERLINE"
+		},
+		"LS_Snowflake_Raw_properties_typeProperties_role": {
+			"value": "ACCOUNTADMIN"
 		},
 		"LS_Snowflake_Upperline_properties_typeProperties_database": {
 			"value": "UPPERLINE"
