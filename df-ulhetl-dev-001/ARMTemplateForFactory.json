@@ -438,7 +438,7 @@
 						"type": "string"
 					},
 					"files": {
-						"type": "array"
+						"type": "string"
 					}
 				},
 				"annotations": []
