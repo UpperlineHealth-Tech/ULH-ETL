@@ -137,6 +137,406 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/archive_inbound_files')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach_File",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.files",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 10,
+							"activities": [
+								{
+									"name": "If_Success_Or_Error",
+									"type": "IfCondition",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@equals(toUpper(item().status), 'SUCCESS')",
+											"type": "Expression"
+										},
+										"ifFalseActivities": [
+											{
+												"name": "Copy_To_Error",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.00:10:00",
+													"retry": 2,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "BinarySource",
+														"storeSettings": {
+															"type": "AzureBlobFSReadSettings",
+															"recursive": false
+														}
+													},
+													"sink": {
+														"type": "BinarySink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														}
+													},
+													"enableStaging": false
+												},
+												"inputs": [
+													{
+														"referenceName": "DS_ADLS_Source_Binary",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": {
+																"value": "@pipeline().parameters.source_container",
+																"type": "Expression"
+															},
+															"directory": {
+																"value": "@pipeline().parameters.source_directory",
+																"type": "Expression"
+															},
+															"filename": {
+																"value": "@item().file_name",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DS_ADLS_Sink_Binary",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": {
+																"value": "@pipeline().parameters.error_container",
+																"type": "Expression"
+															},
+															"directory": {
+																"value": "@pipeline().parameters.error_directory",
+																"type": "Expression"
+															},
+															"filename": {
+																"value": "@item().file_name",
+																"type": "Expression"
+															}
+														}
+													}
+												]
+											},
+											{
+												"name": "Delete_Source_After_Error",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Copy_To_Error",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.00:05:00",
+													"retry": 2,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DS_ADLS_Source_Binary",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": {
+																"value": "@pipeline().parameters.source_container",
+																"type": "Expression"
+															},
+															"directory": {
+																"value": "@pipeline().parameters.source_directory",
+																"type": "Expression"
+															},
+															"filename": {
+																"value": "@item().file_name",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": false
+													}
+												}
+											}
+										],
+										"ifTrueActivities": [
+											{
+												"name": "Copy_To_Archive",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.00:10:00",
+													"retry": 2,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "BinarySource",
+														"storeSettings": {
+															"type": "AzureBlobFSReadSettings",
+															"recursive": false
+														}
+													},
+													"sink": {
+														"type": "BinarySink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														}
+													},
+													"enableStaging": false
+												},
+												"inputs": [
+													{
+														"referenceName": "DS_ADLS_Source_Binary",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": {
+																"value": "@pipeline().parameters.source_container",
+																"type": "Expression"
+															},
+															"directory": {
+																"value": "@pipeline().parameters.source_directory",
+																"type": "Expression"
+															},
+															"filename": {
+																"value": "@item().file_name",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DS_ADLS_Sink_Binary",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": {
+																"value": "@pipeline().parameters.archive_container",
+																"type": "Expression"
+															},
+															"directory": {
+																"value": "@pipeline().parameters.archive_directory",
+																"type": "Expression"
+															},
+															"filename": {
+																"value": "@item().file_name",
+																"type": "Expression"
+															}
+														}
+													}
+												]
+											},
+											{
+												"name": "Delete_Source_After_Archive",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Copy_To_Archive",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.00:05:00",
+													"retry": 2,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DS_ADLS_Source_Binary",
+														"type": "DatasetReference",
+														"parameters": {
+															"container": {
+																"value": "@pipeline().parameters.source_container",
+																"type": "Expression"
+															},
+															"directory": {
+																"value": "@pipeline().parameters.source_directory",
+																"type": "Expression"
+															},
+															"filename": {
+																"value": "@item().file_name",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": false
+													}
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"practice": {
+						"type": "string"
+					},
+					"file_type": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"parent_run_id": {
+						"type": "string"
+					},
+					"source_container": {
+						"type": "string"
+					},
+					"source_directory": {
+						"type": "string"
+					},
+					"archive_container": {
+						"type": "string"
+					},
+					"archive_directory": {
+						"type": "string"
+					},
+					"error_container": {
+						"type": "string"
+					},
+					"error_directory": {
+						"type": "string"
+					},
+					"files": {
+						"type": "array"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_ADLS_Source_Binary')]",
+				"[concat(variables('factoryId'), '/datasets/DS_ADLS_Sink_Binary')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_ADLS_Sink_Binary')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_ADLS_Sink",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"directory": {
+						"type": "string"
+					},
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_Sink')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_ADLS_Source_Binary')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_ADLS_Source",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"container": {
+						"type": "string"
+					},
+					"directory": {
+						"type": "string"
+					},
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@dataset().directory",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().container",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_ADLS_Source')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/AzureBlobStorage')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
