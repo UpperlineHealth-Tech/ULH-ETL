@@ -593,7 +593,7 @@
 																"type": "Expression"
 															},
 															"filename": {
-																"value": "@item().file_name",
+																"value": "@concat(substring(item().file_name, 0, lastIndexOf(item().file_name, '.')), '_PRI_', pipeline().parameters.parent_run_id, substring(item().file_name, lastIndexOf(item().file_name, '.'), sub(length(item().file_name), lastIndexOf(item().file_name, '.'))))",
 																"type": "Expression"
 															}
 														}
