@@ -265,44 +265,34 @@
 		],
 		"parameters": {
 			"practice": {
-				"type": "string",
-				"defaultValue": "fastpace"
+				"type": "string"
 			},
 			"file_type": {
-				"type": "string",
-				"defaultValue": "AppointmentData"
+				"type": "string"
 			},
 			"status": {
-				"type": "string",
-				"defaultValue": "SUCCESS"
+				"type": "string"
 			},
 			"parent_run_id": {
-				"type": "string",
-				"defaultValue": "test-manual-001"
+				"type": "string"
 			},
 			"source_container": {
-				"type": "string",
-				"defaultValue": "raw"
+				"type": "string"
 			},
 			"source_directory": {
-				"type": "string",
-				"defaultValue": "appointmentdata/fastpace"
+				"type": "string"
 			},
 			"archive_container": {
-				"type": "string",
-				"defaultValue": "raw"
+				"type": "string"
 			},
 			"archive_directory": {
-				"type": "string",
-				"defaultValue": "archive/fastpace/appointmentdata"
+				"type": "string"
 			},
 			"error_container": {
-				"type": "string",
-				"defaultValue": "raw"
+				"type": "string"
 			},
 			"error_directory": {
-				"type": "string",
-				"defaultValue": "error/fastpace/appointmentdata"
+				"type": "string"
 			},
 			"files": {
 				"type": "array"
