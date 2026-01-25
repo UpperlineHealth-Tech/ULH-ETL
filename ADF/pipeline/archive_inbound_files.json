@@ -9,7 +9,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@pipeline().parameters.files",
+						"value": "@json(pipeline().parameters.files)",
 						"type": "Expression"
 					},
 					"isSequential": false,
