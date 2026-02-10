@@ -1,0 +1,2691 @@
+{
+    "Practices": [
+        {
+            "practice_name": "adcs",
+            "ingest": [
+                {
+                    "file_type": "AppointmentData",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "stage_name": "stage_stulhetldev001_raw",
+                        "directory": "appointmentdata/adcs",
+                        "file_pattern": ".*\\.csv$",
+                        "delimiter": ","
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/adcs/appointmentdata"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/adcs/appointmentdata"
+                    },
+                    "precheck": {
+                        "enabled": true,
+                        "expected_columns": [
+                            "appt_id",
+                            "Appt_Date",
+                            "Appt_Provider",
+                            "Appt_StartTime",
+                            "Appt_Status",
+                            "Appt_Type",
+                            "national_provider_id",
+                            "location_id",
+                            "location_name",
+                            "Patient_Address_1",
+                            "Patient_Address_2",
+                            "cell_phone",
+                            "city",
+                            "email_address",
+                            "home_phone",
+                            "state",
+                            "zip",
+                            "Primary_Financial_Class",
+                            "Primary_Ins_Name",
+                            "Primary_Policy_Number",
+                            "Secondary_Ins_Name",
+                            "Secondary_Policy_Number",
+                            "Secondary_Group_Number",
+                            "date_of_birth",
+                            "ethnicity",
+                            "first_name",
+                            "sex",
+                            "last_name",
+                            "middle_name",
+                            "med_rec_nbr",
+                            "language",
+                            "QMB_Status",
+                            "race",
+                            "Appointment_Deleted"
+                        ],
+                        "min_row_count": 1,
+                        "max_row_count": null,
+                        "require_all_columns": true,
+                        "allow_extra_columns": false,
+                        "case_sensitive_headers": true
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "ADCS_APPOINTMENTS",
+                        "load_mode": "append",
+                        "refined_database": "UPPERLINE_REFINED",
+                        "refined_schema": "AFFILIATEDATA",
+                        "refined_table": "ADCS_APPOINTMENTS",
+                        "column_strip": [
+                            {
+                                "column": "appt_id",
+                                "chars": "{}"
+                            },
+                            {
+                                "column": "location_id",
+                                "chars": "{}"
+                            }
+                        ],
+                        "curated_database": "UPPERLINE_CURATED",
+                        "curated_schema": "AFFILIATEDATA",
+                        "curated_table": "DATAVERSE_APPOINTMENTS",
+                        "curated_column_mapping": [
+                            {
+                                "target": "FIRSTNAME",
+                                "source": "FIRST_NAME"
+                            },
+                            {
+                                "target": "LASTNAME",
+                                "source": "LAST_NAME"
+                            },
+                            {
+                                "target": "DOB",
+                                "source": "DATE_OF_BIRTH"
+                            },
+                            {
+                                "target": "PROVIDER",
+                                "source": "APPT_PROVIDER"
+                            },
+                            {
+                                "target": "ADDRESS",
+                                "source": "PATIENT_ADDRESS_1",
+                                "concat_with": "PATIENT_ADDRESS_2",
+                                "concat_separator": " "
+                            },
+                            {
+                                "target": "CITY",
+                                "source": "CITY"
+                            },
+                            {
+                                "target": "STATE",
+                                "source": "STATE"
+                            },
+                            {
+                                "target": "ZIP",
+                                "source": "ZIP"
+                            },
+                            {
+                                "target": "MBI",
+                                "source": "PRIMARY_POLICY_NUMBER"
+                            },
+                            {
+                                "target": "APPTTIME",
+                                "source": "APPT_STARTTIME"
+                            },
+                            {
+                                "target": "OFFICE",
+                                "source": "LOCATION_NAME"
+                            },
+                            {
+                                "target": "EMAIL",
+                                "source": "EMAIL_ADDRESS"
+                            },
+                            {
+                                "target": "PHONE",
+                                "source": "CELL_PHONE"
+                            },
+                            {
+                                "target": "SEX",
+                                "source": "SEX"
+                            }
+                        ],
+                        "curated_lookup": {
+                            "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTPATIENTDEMOGRAPHICS",
+                            "source_key": "PRIMARY_POLICY_NUMBER",
+                            "lookup_key": "CR063_MEDICARENUM",
+                            "result_column": "RECORD_TYPE",
+                            "match_value": "UPDATE",
+                            "no_match_value": "NEW"
+                        },
+                        "dataverse_sync": {
+                            "enabled": true,
+                            "secret_name": "dataverse_creds",
+                            "batch_size": 500,
+                            "future_only_filter": {
+                                "enabled": true,
+                                "datetime_columns": [
+                                    "APPT_DATE"
+                                ],
+                                "separator": " "
+                            },
+                            "patient_demographics": {
+                                "entity": "cr063_spotpatientdemographicses",
+                                "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTPATIENTDEMOGRAPHICS",
+                                "lookup_key": "CR063_MEDICARENUM",
+                                "source_key": "PRIMARY_POLICY_NUMBER",
+                                "field_mapping": {
+                                    "cr063_medicarenum": "PRIMARY_POLICY_NUMBER",
+                                    "cr063_officename": "OFFICENAME",
+                                    "cr063_patientdob": "DATE_OF_BIRTH",
+                                    "cr063_patientfirst": "FIRST_NAME",
+                                    "cr063_patientlast": "LAST_NAME",
+                                    "cr063_ehrid": "MED_REC_NBR",
+                                    "cr063_patientaddress": {
+                                        "concat": [
+                                            "PATIENT_ADDRESS_1",
+                                            "PATIENT_ADDRESS_2"
+                                        ],
+                                        "separator": " "
+                                    },
+                                    "cr063_patientcity": "CITY",
+                                    "cr063_patientemail": "EMAIL_ADDRESS",
+                                    "cr063_patientphonenumber": "CELL_PHONE",
+                                    "cr063_patientsex": "SEX",
+                                    "cr063_patientstate": "STATE",
+                                    "cr063_patientzip": "ZIP",
+                                    "cr063_payername": "PRIMARY_INS_NAME",
+                                    "cr063_secondaryinsurancename": "SECONDARY_POLICY_NUMBER",
+                                    "cr063_secondarypayername": "SECONDARY_INS_NAME"
+                                }
+                            },
+                            "appointment_data": {
+                                "entity": "crddb_vaaffliatedatas",
+                                "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTAFFILIATEDATA",
+                                "lookup_keys": [
+                                    {
+                                        "source": "OFFICENAME",
+                                        "lookup": "CRDDB_OFFICENAME"
+                                    },
+                                    {
+                                        "source": "FIRST_NAME",
+                                        "lookup": "CRDDB_PATIENTFIRST"
+                                    },
+                                    {
+                                        "source": "LAST_NAME",
+                                        "lookup": "CRDDB_PATIENTLAST"
+                                    },
+                                    {
+                                        "source": "APPT_DATE",
+                                        "lookup": "CRDDB_NEXTAPPT"
+                                    }
+                                ],
+                                "canceled_check": {
+                                    "source_field": "APPT_STATUS",
+                                    "values": [
+                                        "CANCELLED",
+                                        "RESCHEDULED"
+                                    ],
+                                    "flag_field": "crddb_deleteflagfromhj",
+                                    "flag_value": "Y"
+                                },
+                                "field_mapping": {
+                                    "crddb_officename": "OFFICENAME",
+                                    "crddb_nextappt": "APPT_DATE",
+                                    "crddb_patientdob": "DATE_OF_BIRTH",
+                                    "crddb_patientfirst": "FIRST_NAME",
+                                    "crddb_patientlast": "LAST_NAME",
+                                    "crddb_ehrapptid": "APPT_ID",
+                                    "crddb_ehrid": "MED_REC_NBR",
+                                    "crddb_medicarenum": "PRIMARY_POLICY_NUMBER",
+                                    "crddb_patientaddress": {
+                                        "concat": [
+                                            "PATIENT_ADDRESS_1",
+                                            "PATIENT_ADDRESS_2"
+                                        ],
+                                        "separator": " "
+                                    },
+                                    "crddb_patientcity": "CITY",
+                                    "crddb_patientemail": "EMAIL_ADDRESS",
+                                    "crddb_patientphonenumber": "CELL_PHONE",
+                                    "crddb_patientsex": "SEX",
+                                    "crddb_patientstate": "STATE",
+                                    "crddb_patientzip": "ZIP",
+                                    "crddb_payername": "PRIMARY_INS_NAME",
+                                    "crddb_provider": "APPT_PROVIDER",
+                                    "crddb_providernpi": "NATIONAL_PROVIDER_ID",
+                                    "crddb_secondaryinsurancenum": "SECONDARY_POLICY_NUMBER",
+                                    "crddb_secondarypayername": "SECONDARY_INS_NAME"
+                                }
+                            },
+                            "environments": {
+                                "prod": "https://orge5eb7aa5.crm.dynamics.com",
+                                "sandbox": "https://org86b912d9.crm.dynamics.com"
+                            },
+                            "office_mapping": {
+                                "lookup_table": "UPPERLINE.AFFILIATEDATA.OFFICE_MAPPINGS",
+                                "source_column": "LOCATION_NAME",
+                                "lookup_column": "ULHIT_EMRLOCATIONNAME",
+                                "result_column": "CR063_ASSIGNEDOFFICE",
+                                "target_alias": "OFFICENAME"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "bisbee",
+            "ingest": [
+                {
+                    "file_type": "AppointmentData",
+                    "source_type": "query",
+                    "source": {
+                        "query": "select distinct pt.firstname,pt.lastname,to_char(pt.dob,'MM-DD-YYYY') as dob,to_char(ap.appointmentdate,'MM-DD-YYYY') as date,ap.begintime as begin_time,pt.patientid as patient_id,ap.encounterid as encounter_id,pt.membersubscriberid as member_subscriber_id,pt.insurancetype as insurance_type,pt.deleteindicator as delete_indicator,pt.providerclinicianname as provider_clinician_name,pt.resource as resource,pt.addressline1 as address_line_1,pt.city as city,pt.state as state,pt.zip as zip,pt.sex as gender,pt.race as race,pt.ethnicity as ethnicity,pt.location as location,pt.homephone as home_phone,pt.mobilephone as mobile_phone,pt.workphone as work_phone from upperline.raw_inbound_affiliatedata.stg_bisbee_appointmentdata pt join upperline.raw_inbound_affiliatedata.stg_bisbee_appointmentdata ap on pt.encounterid = ap.encounterid"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/bisbee/appointmentdata"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/bisbee/appointmentdata"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "BISBEE_APPOINTMENTS",
+                        "load_mode": "append"
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "werter",
+            "ingest": [
+                {
+                    "file_type": "AppointmentData",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "stage_name": "stage_stulhetldev001_raw",
+                        "directory": "appointmentdata/werter",
+                        "file_pattern": ".*\\.csv$",
+                        "delimiter": ","
+                    },
+                    "archive": {
+                        "container": "N/A",
+                        "directory": "N/A"
+                    },
+                    "error": {
+                        "container": "N/A",
+                        "directory": "N/A"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "WERTER_APPOINTMENTS",
+                        "load_mode": "append",
+                        "refined_database": "UPPERLINE_REFINED",
+                        "refined_schema": "AFFILIATEDATA",
+                        "refined_table": "WERTER_APPOINTMENTS",
+                        "column_regex_replace": [
+                            {
+                                "column": "Appt Location",
+                                "rules": [
+                                    {
+                                        "match_substring": "International Drive",
+                                        "search": "International Drive",
+                                        "replace": "SC_CP_Werter_CarolinaForest"
+                                    },
+                                    {
+                                        "match_substring": "Myrtle Beach",
+                                        "search": "Myrtle Beach",
+                                        "replace": "SC_CP_Werter_MyrtleBeach"
+                                    },
+                                    {
+                                        "match_substring": "Conway",
+                                        "search": "Conway",
+                                        "replace": "SC_CP_Werter_Conway"
+                                    },
+                                    {
+                                        "match_substring": "Little River",
+                                        "search": "Little River",
+                                        "replace": "SC_CP_Werter_LittleRiver"
+                                    },
+                                    {
+                                        "match_substring": "Surfside Beach",
+                                        "search": "Surfside Beach",
+                                        "replace": "SC_CP_Werter_Surfside"
+                                    }
+                                ]
+                            }
+                        ],
+                        "column_reformat": [
+                            {
+                                "column": "Appt Provider",
+                                "type": "split_reorder",
+                                "split_by": ",",
+                                "part_order": [
+                                    1,
+                                    0
+                                ],
+                                "join_with": " ",
+                                "trim_parts": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "fastpace",
+            "ingest": [
+                {
+                    "file_type": "AppointmentData",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "stage_name": "stage_stulhetldev001_raw",
+                        "directory": "appointmentdata/fastpace",
+                        "file_pattern": ".*FastPace_Appointments_2.*csv",
+                        "delimiter": ","
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/fastpace/appointmentdata"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/fastpace/appointmentdata"
+                    },
+                    "precheck": {
+                        "enabled": true,
+                        "expected_columns": [
+                            "AppointmentDate",
+                            "Provider",
+                            "AppointmentStartDate",
+                            "AppointmentStatus",
+                            "AppointmentType",
+                            "ProviderNPI",
+                            "OfficeLocation",
+                            "Address1",
+                            "Address2",
+                            "CellPhone",
+                            "City",
+                            "Email",
+                            "HomePhone",
+                            "State",
+                            "ZipCode",
+                            "PrimaryInsurancePackageName",
+                            "PrimaryInsuranceSubscriberId",
+                            "SecondaryInsurancePackageName",
+                            "SecondaryInsuranceSubscriberId",
+                            "SecondaryInsuranceGroupNumber",
+                            "DateOfBirth",
+                            "Ethnicity",
+                            "FirstName",
+                            "Sex",
+                            "LastName",
+                            "PatientNumber",
+                            "Language",
+                            "QMBStatus",
+                            "Race",
+                            "SystemId",
+                            "AppointmentDeleted",
+                            "InteractionResult",
+                            "InteractionUser",
+                            "Eligible",
+                            "AcoEnrolled",
+                            "ApcmEnrolled",
+                            "emr_appointment_id"
+                        ],
+                        "min_row_count": 1,
+                        "max_row_count": null,
+                        "require_all_columns": true,
+                        "allow_extra_columns": false,
+                        "case_sensitive_headers": true
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "FASTPACE_APPOINTMENTS",
+                        "load_mode": "append",
+                        "refined_database": "UPPERLINE_REFINED",
+                        "refined_schema": "AFFILIATEDATA",
+                        "refined_table": "FASTPACE_APPOINTMENTS",
+                        "column_regex_replace": [
+                            {
+                                "column": "OFFICELOCATION",
+                                "rules": [
+                                    {
+                                        "match_substring": "FPAL",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_AL"
+                                    },
+                                    {
+                                        "match_substring": "FPIN",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_IN"
+                                    },
+                                    {
+                                        "match_substring": "FPKY",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_KY"
+                                    },
+                                    {
+                                        "match_substring": "FPLA",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_LA"
+                                    },
+                                    {
+                                        "match_substring": "FPMS",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_MS"
+                                    },
+                                    {
+                                        "match_substring": "FPUC",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_TN"
+                                    },
+                                    {
+                                        "match_substring": "CFM",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_TN"
+                                    },
+                                    {
+                                        "match_substring": "FPAR",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_AR"
+                                    },
+                                    {
+                                        "match_substring": "FPNC",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_NC"
+                                    },
+                                    {
+                                        "match_substring": "RFWIC",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_TN"
+                                    }
+                                ]
+                            }
+                        ],
+                        "curated_database": "UPPERLINE_CURATED",
+                        "curated_schema": "AFFILIATEDATA",
+                        "curated_table": "DATAVERSE_APPOINTMENTS",
+                        "curated_lookup": {
+                            "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTPATIENTDEMOGRAPHICS",
+                            "source_key": "PRIMARYINSURANCESUBSCRIBERID",
+                            "lookup_key": "CR063_MEDICARENUM",
+                            "result_column": "RECORD_TYPE",
+                            "match_value": "UPDATE",
+                            "no_match_value": "NEW"
+                        },
+                        "curated_column_mapping": [
+                            {
+                                "target": "FIRSTNAME",
+                                "source": "FIRSTNAME"
+                            },
+                            {
+                                "target": "LASTNAME",
+                                "source": "LASTNAME"
+                            },
+                            {
+                                "target": "DOB",
+                                "source": "DATEOFBIRTH"
+                            },
+                            {
+                                "target": "PROVIDER",
+                                "source": "PROVIDER"
+                            },
+                            {
+                                "target": "ADDRESS",
+                                "source": "ADDRESS1",
+                                "concat_with": "ADDRESS2",
+                                "concat_separator": " "
+                            },
+                            {
+                                "target": "CITY",
+                                "source": "CITY"
+                            },
+                            {
+                                "target": "STATE",
+                                "source": "STATE"
+                            },
+                            {
+                                "target": "ZIP",
+                                "source": "ZIPCODE"
+                            },
+                            {
+                                "target": "MBI",
+                                "source": "PRIMARYINSURANCESUBSCRIBERID"
+                            },
+                            {
+                                "target": "APPTTIME",
+                                "source": "APPOINTMENTSTARTDATE"
+                            },
+                            {
+                                "target": "OFFICE",
+                                "source": "OFFICELOCATION"
+                            },
+                            {
+                                "target": "EMAIL",
+                                "source": "EMAIL"
+                            },
+                            {
+                                "target": "PHONE",
+                                "source": "CELLPHONE"
+                            },
+                            {
+                                "target": "SEX",
+                                "source": "SEX"
+                            }
+                        ],
+                        "dataverse_sync": {
+                            "enabled": true,
+                            "secret_name": "dataverse_creds",
+                            "batch_size": 500,
+                            "patient_demographics": {
+                                "entity": "cr063_spotpatientdemographicses",
+                                "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTPATIENTDEMOGRAPHICS",
+                                "lookup_key": "CR063_MEDICARENUM",
+                                "source_key": "PRIMARYINSURANCESUBSCRIBERID",
+                                "field_mapping": {
+                                    "cr063_medicarenum": "PRIMARYINSURANCESUBSCRIBERID",
+                                    "cr063_officename": "OFFICELOCATION",
+                                    "cr063_patientdob": "DATEOFBIRTH",
+                                    "cr063_patientfirst": "FIRSTNAME",
+                                    "cr063_patientlast": "LASTNAME",
+                                    "cr063_ehrid": "PATIENTNUMBER",
+                                    "cr063_patientaddress": {
+                                        "concat": [
+                                            "ADDRESS1",
+                                            "ADDRESS2"
+                                        ],
+                                        "separator": " "
+                                    },
+                                    "cr063_patientcity": "CITY",
+                                    "cr063_patientemail": "EMAIL",
+                                    "cr063_patientphonenumber": {
+                                        "coalesce": [
+                                            "CELLPHONE",
+                                            "HOMEPHONE"
+                                        ]
+                                    },
+                                    "cr063_patientsex": "SEX",
+                                    "cr063_patientstate": "STATE",
+                                    "cr063_patientzip": "ZIPCODE",
+                                    "cr063_payername": "PRIMARYINSURANCEPACKAGENAME",
+                                    "cr063_secondaryinsurancename": "SECONDARYINSURANCESUBSCRIBERID",
+                                    "cr063_secondarypayername": "SECONDARYINSURANCEPACKAGENAME"
+                                }
+                            },
+                            "appointment_data": {
+                                "entity": "crddb_vaaffliatedatas",
+                                "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTAFFILIATEDATA",
+                                "lookup_keys": {
+                                    "patient_id": {
+                                        "source": "PATIENTNUMBER",
+                                        "lookup": "CRDDB_EHRID"
+                                    },
+                                    "appointment_date": {
+                                        "source": "APPOINTMENTDATE",
+                                        "lookup": "CRDDB_NEXTAPPT",
+                                        "date_only": true
+                                    }
+                                },
+                                "canceled_check": {
+                                    "source_field": "APPOINTMENTSTATUS",
+                                    "values": [
+                                        "Canceled",
+                                        "Rescheduled"
+                                    ],
+                                    "flag_field": "crddb_deleteflagfromhj",
+                                    "flag_value": "Y"
+                                },
+                                "field_mapping": {
+                                    "crddb_officename": "OFFICELOCATION",
+                                    "crddb_nextappt": {
+                                        "source": "APPOINTMENTDATE",
+                                        "suffix": " 08:00"
+                                    },
+                                    "crddb_patientdob": "DATEOFBIRTH",
+                                    "crddb_patientfirst": "FIRSTNAME",
+                                    "crddb_patientlast": "LASTNAME",
+                                    "crddb_ehrapptid": "EMR_APPOINTMENT_ID",
+                                    "crddb_ehrid": "PATIENTNUMBER",
+                                    "crddb_medicarenum": "PRIMARYINSURANCESUBSCRIBERID",
+                                    "crddb_patientaddress": {
+                                        "concat": [
+                                            "ADDRESS1",
+                                            "ADDRESS2"
+                                        ],
+                                        "separator": " "
+                                    },
+                                    "crddb_patientcity": "CITY",
+                                    "crddb_patientemail": "EMAIL",
+                                    "crddb_patienthomephone": "HOMEPHONE",
+                                    "crddb_patientphonenumber": "CELLPHONE",
+                                    "crddb_patientsex": "SEX",
+                                    "crddb_patientstate": "STATE",
+                                    "crddb_patientzip": "ZIPCODE",
+                                    "crddb_payername": "PRIMARYINSURANCEPACKAGENAME",
+                                    "crddb_provider": "PROVIDER",
+                                    "crddb_providernpi": "PROVIDERNPI",
+                                    "crddb_race": "RACE",
+                                    "crddb_secondaryinsurancenum": "SECONDARYINSURANCESUBSCRIBERID",
+                                    "crddb_secondarypayername": "SECONDARYINSURANCEPACKAGENAME",
+                                    "crddb_result": {
+                                        "source": "INTERACTIONRESULT",
+                                        "transform": {
+                                            "declined": "Declined",
+                                            "not_offered": "Not Offered",
+                                            "needs_more_info": "Needs More Info",
+                                            "already_enrolled": "Already Enrolled",
+                                            "appt_not_completed": "Appt Not Completed",
+                                            "patient_not_eligible": "Patient Not Eligible",
+                                            "patient_handed_tablet": "Declined",
+                                            "offered_brochure": "Offered Brochure"
+                                        }
+                                    }
+                                }
+                            },
+                            "environments": {
+                                "prod": "https://orge5eb7aa5.crm.dynamics.com",
+                                "sandbox": "https://org86b912d9.crm.dynamics.com"
+                            }
+                        },
+                        "source_filter": [
+                            {
+                                "column": "ELIGIBLE",
+                                "operator": "=",
+                                "value": "Y"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "file_type": "FutureAppointmentData",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "stage_name": "stage_stulhetldev001_raw",
+                        "directory": "appointmentdata/fastpace",
+                        "file_pattern": ".*FastPace_Future_Appointments.*csv",
+                        "delimiter": ","
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/fastpace/futureappointmentdata"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/fastpace/futureappointmentdata"
+                    },
+                    "precheck": {
+                        "enabled": true,
+                        "expected_columns": [
+                            "AppointmentDate",
+                            "Provider",
+                            "AppointmentStartDate",
+                            "AppointmentStatus",
+                            "AppointmentType",
+                            "ProviderNPI",
+                            "OfficeLocation",
+                            "Address1",
+                            "Address2",
+                            "CellPhone",
+                            "City",
+                            "Email",
+                            "HomePhone",
+                            "State",
+                            "ZipCode",
+                            "PrimaryInsurancePackageName",
+                            "PrimaryInsuranceSubscriberId",
+                            "SecondaryInsurancePackageName",
+                            "SecondaryInsuranceSubscriberId",
+                            "SecondaryInsuranceGroupNumber",
+                            "DateOfBirth",
+                            "Ethnicity",
+                            "FirstName",
+                            "Sex",
+                            "LastName",
+                            "PatientNumber",
+                            "Language",
+                            "QMBStatus",
+                            "Race",
+                            "SystemId",
+                            "AppointmentDeleted",
+                            "emr_appointment_id"
+                        ],
+                        "min_row_count": 1,
+                        "max_row_count": null,
+                        "require_all_columns": true,
+                        "allow_extra_columns": false,
+                        "case_sensitive_headers": true
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "FASTPACE_FUTURE_APPOINTMENTS",
+                        "load_mode": "append",
+                        "refined_database": "UPPERLINE_REFINED",
+                        "refined_schema": "AFFILIATEDATA",
+                        "refined_table": "FASTPACE_FUTURE_APPOINTMENTS",
+                        "column_regex_replace": [
+                            {
+                                "column": "OFFICELOCATION",
+                                "rules": [
+                                    {
+                                        "match_substring": "FPAL",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_AL"
+                                    },
+                                    {
+                                        "match_substring": "FPIN",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_IN"
+                                    },
+                                    {
+                                        "match_substring": "FPKY",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_KY"
+                                    },
+                                    {
+                                        "match_substring": "FPLA",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_LA"
+                                    },
+                                    {
+                                        "match_substring": "FPMS",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_MS"
+                                    },
+                                    {
+                                        "match_substring": "FPNC",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_NC"
+                                    },
+                                    {
+                                        "match_substring": "FPTN",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_TN"
+                                    },
+                                    {
+                                        "match_substring": "FPTX",
+                                        "search": "FastPace",
+                                        "replace": "FastPace_TX"
+                                    }
+                                ]
+                            }
+                        ],
+                        "curated_database": "UPPERLINE_CURATED",
+                        "curated_schema": "AFFILIATEDATA",
+                        "curated_table": "DATAVERSE_APPOINTMENTS",
+                        "curated_lookup": {
+                            "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTPATIENTDEMOGRAPHICS",
+                            "source_key": "PRIMARYINSURANCESUBSCRIBERID",
+                            "lookup_key": "CR063_MEDICARENUM",
+                            "result_column": "RECORD_TYPE",
+                            "match_value": "UPDATE",
+                            "no_match_value": "NEW"
+                        },
+                        "curated_column_mapping": [
+                            {
+                                "target": "FIRSTNAME",
+                                "source": "FIRSTNAME"
+                            },
+                            {
+                                "target": "LASTNAME",
+                                "source": "LASTNAME"
+                            },
+                            {
+                                "target": "DOB",
+                                "source": "DATEOFBIRTH"
+                            },
+                            {
+                                "target": "PROVIDER",
+                                "source": "PROVIDER"
+                            },
+                            {
+                                "target": "ADDRESS",
+                                "source": "ADDRESS1",
+                                "concat_with": "ADDRESS2",
+                                "concat_separator": " "
+                            },
+                            {
+                                "target": "CITY",
+                                "source": "CITY"
+                            },
+                            {
+                                "target": "STATE",
+                                "source": "STATE"
+                            },
+                            {
+                                "target": "ZIP",
+                                "source": "ZIPCODE"
+                            },
+                            {
+                                "target": "MBI",
+                                "source": "PRIMARYINSURANCESUBSCRIBERID"
+                            },
+                            {
+                                "target": "APPTTIME",
+                                "source": "APPOINTMENTSTARTDATE"
+                            },
+                            {
+                                "target": "OFFICE",
+                                "source": "OFFICELOCATION"
+                            },
+                            {
+                                "target": "EMAIL",
+                                "source": "EMAIL"
+                            },
+                            {
+                                "target": "PHONE",
+                                "source": "CELLPHONE"
+                            },
+                            {
+                                "target": "SEX",
+                                "source": "SEX"
+                            }
+                        ],
+                        "dataverse_sync": {
+                            "enabled": true,
+                            "secret_name": "dataverse_creds",
+                            "batch_size": 500,
+                            "patient_demographics": {
+                                "entity": "cr063_spotpatientdemographicses",
+                                "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTPATIENTDEMOGRAPHICS",
+                                "lookup_key": "CR063_MEDICARENUM",
+                                "source_key": "PRIMARYINSURANCESUBSCRIBERID",
+                                "field_mapping": {
+                                    "cr063_medicarenum": "PRIMARYINSURANCESUBSCRIBERID",
+                                    "cr063_officename": "OFFICELOCATION",
+                                    "cr063_patientdob": "DATEOFBIRTH",
+                                    "cr063_patientfirst": "FIRSTNAME",
+                                    "cr063_patientlast": "LASTNAME",
+                                    "cr063_ehrid": "PATIENTNUMBER",
+                                    "cr063_patientaddress": {
+                                        "concat": [
+                                            "ADDRESS1",
+                                            "ADDRESS2"
+                                        ],
+                                        "separator": " "
+                                    },
+                                    "cr063_patientcity": "CITY",
+                                    "cr063_patientemail": "EMAIL",
+                                    "cr063_patientphonenumber": {
+                                        "coalesce": [
+                                            "CELLPHONE",
+                                            "HOMEPHONE"
+                                        ]
+                                    },
+                                    "cr063_patientsex": "SEX",
+                                    "cr063_patientstate": "STATE",
+                                    "cr063_patientzip": "ZIPCODE",
+                                    "cr063_payername": "PRIMARYINSURANCEPACKAGENAME",
+                                    "cr063_secondaryinsurancename": "SECONDARYINSURANCESUBSCRIBERID",
+                                    "cr063_secondarypayername": "SECONDARYINSURANCEPACKAGENAME"
+                                }
+                            },
+                            "appointment_data": {
+                                "entity": "crddb_vaaffliatedatas",
+                                "lookup_table": "UPPERLINE.AFFILIATEDATA.SPOTAFFILIATEDATA",
+                                "lookup_keys": {
+                                    "patient_id": {
+                                        "source": "PATIENTNUMBER",
+                                        "lookup": "CRDDB_EHRID"
+                                    },
+                                    "appointment_date": {
+                                        "source": "APPOINTMENTDATE",
+                                        "lookup": "CRDDB_NEXTAPPT",
+                                        "date_only": true
+                                    }
+                                },
+                                "canceled_check": {
+                                    "source_field": "APPOINTMENTSTATUS",
+                                    "values": [
+                                        "Canceled",
+                                        "Rescheduled"
+                                    ],
+                                    "flag_field": "crddb_deleteflagfromhj",
+                                    "flag_value": "Y"
+                                },
+                                "field_mapping": {
+                                    "crddb_officename": "OFFICELOCATION",
+                                    "crddb_nextappt": {
+                                        "source": "APPOINTMENTDATE",
+                                        "suffix": " 08:00"
+                                    },
+                                    "crddb_patientdob": "DATEOFBIRTH",
+                                    "crddb_patientfirst": "FIRSTNAME",
+                                    "crddb_patientlast": "LASTNAME",
+                                    "crddb_ehrapptid": "EMR_APPOINTMENT_ID",
+                                    "crddb_ehrid": "PATIENTNUMBER",
+                                    "crddb_medicarenum": "PRIMARYINSURANCESUBSCRIBERID",
+                                    "crddb_patientaddress": {
+                                        "concat": [
+                                            "ADDRESS1",
+                                            "ADDRESS2"
+                                        ],
+                                        "separator": " "
+                                    },
+                                    "crddb_patientcity": "CITY",
+                                    "crddb_patientemail": "EMAIL",
+                                    "crddb_patienthomephone": "HOMEPHONE",
+                                    "crddb_patientphonenumber": "CELLPHONE",
+                                    "crddb_patientsex": "SEX",
+                                    "crddb_patientstate": "STATE",
+                                    "crddb_patientzip": "ZIPCODE",
+                                    "crddb_payername": "PRIMARYINSURANCEPACKAGENAME",
+                                    "crddb_provider": "PROVIDER",
+                                    "crddb_providernpi": "PROVIDERNPI",
+                                    "crddb_race": "RACE",
+                                    "crddb_secondaryinsurancenum": "SECONDARYINSURANCESUBSCRIBERID",
+                                    "crddb_secondarypayername": "SECONDARYINSURANCEPACKAGENAME"
+                                }
+                            },
+                            "environments": {
+                                "prod": "https://orge5eb7aa5.crm.dynamics.com",
+                                "sandbox": "https://org86b912d9.crm.dynamics.com"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "murphy",
+            "ingest": [
+                {
+                    "file_type": "AppointmentData",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": ",",
+                        "directory": "appointmentdata/murphy",
+                        "file_pattern": ".*AFA_UL_DAILY_ACO_APCM_RAW.*\\.csv$",
+                        "stage_name": "stage_stulhetldev001_raw"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/murphy/appointmentdata"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/murphy/appointmentdata"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "MURPHY_APPOINTMENTS",
+                        "load_mode": "append"
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "humana",
+            "ingest": [
+                {
+                    "file_type": "CSE",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": "|",
+                        "directory": "practices/humana/capitated_specialist_expense",
+                        "file_pattern": ".*\\.txt(\\.gz)?$",
+                        "stage_name": "stage_stulhetldev001_raw"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/humana/capitated_specialist_expense"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/humana/capitated_specialist_expense"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HUMANA_CSE",
+                        "load_mode": "append"
+                    },
+                    "precheck": {
+                        "enabled": true,
+                        "expected_columns": [
+                            "SRC_MBR_ID",
+                            "YEARMO",
+                            "CAP_SPEC_AMT",
+                            "TYPE"
+                        ],
+                        "min_row_count": 1,
+                        "max_row_count": null,
+                        "require_all_columns": true,
+                        "allow_extra_columns": false,
+                        "case_sensitive_headers": false
+                    }
+                },
+                {
+                    "file_type": "Funding",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": "|",
+                        "directory": "practices/humana/funding",
+                        "file_pattern": ".*\\.txt(\\.gz)?$",
+                        "stage_name": "stage_stulhetldev001_raw"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/humana/funding"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/humana/funding"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HUMANA_FUNDING",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "MADJ",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": "|",
+                        "directory": "practices/humana/madj",
+                        "file_pattern": ".*\\.txt(\\.gz)?$",
+                        "stage_name": "stage_stulhetldev001_raw"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/humana/madj"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/humana/madj"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HUMANA_MADJ",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Medical_Claims",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": "|",
+                        "directory": "practices/humana/medical_claims",
+                        "file_pattern": ".*\\.txt(\\.gz)?$",
+                        "stage_name": "stage_stulhetldev001_raw"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/humana/medical_claims"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/humana/medical_claims"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HUMANA_MEDICAL_CLAIMS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "member_eligibility",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": "|",
+                        "directory": "practices/humana/member_eligibility",
+                        "file_pattern": ".*\\.txt(\\.gz)?$",
+                        "stage_name": "stage_stulhetldev001_raw"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/humana/member_eligibility"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/humana/member_eligibility"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HUMANA_MEMBER_ELIGIBILITY",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Pharmacy_Claims",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": "|",
+                        "directory": "practices/humana/pharmacy_claims",
+                        "file_pattern": ".*\\.txt(\\.gz)?$",
+                        "stage_name": "stage_stulhetldev001_raw",
+                        "file_format_name": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.FF_HUMANA_PHARMACY_CLAIMS",
+                        "columns": [
+                            "SRC_MBR_ID",
+                            "UMID",
+                            "CLAIM_NBR",
+                            "DOCUMENT_KEY",
+                            "DATE_FILLED",
+                            "DATE_PROCESSED",
+                            "SERV_DT",
+                            "NDC_ID",
+                            "RX_ID",
+                            "PART_B_D_CD",
+                            "PAYABLE_QTY",
+                            "PAY_DAY_SUPPLY_CNT",
+                            "GPI_DRUG_NAME1_DESC",
+                            "GPI_DRUG_NAME2_DESC",
+                            "FILL_TYPE",
+                            "MAIL_ORDER_IND",
+                            "CLAIM_GENERIC_IND",
+                            "RX_WRITTEN_DATE",
+                            "MBR_COST_SHARE",
+                            "NET_PAID_AMT",
+                            "REFILL_NBR",
+                            "PHARMACY_NPI",
+                            "PRESCRIBER_NPI",
+                            "METRIC_STRENGTH",
+                            "STRENGTH_MEASURE"
+                        ]
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/humana/pharmacy_claims"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/humana/pharmacy_claims"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HUMANA_PHARMACY_CLAIMS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Premium",
+                    "source_type": "file",
+                    "source": {
+                        "container": "raw",
+                        "delimiter": "|",
+                        "directory": "practices/humana/premium",
+                        "file_pattern": ".*\\.txt(\\.gz)?$",
+                        "stage_name": "stage_stulhetldev001_raw"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/humana/premium"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/humana/premium"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HUMANA_PREMIUM",
+                        "load_mode": "append"
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "healthjump",
+            "ingest": [
+                {
+                    "file_type": "AppointmentData",
+                    "source_type": "api",
+                    "source": {
+                        "api_url": "https://dbx.healthjump.com/api/queries/3977/results.json",
+                        "method": "GET",
+                        "queries": {
+                            "api_key_secret_alias": "healthjump_queries_api_key"
+                        },
+                        "refresh": {
+                            "api_key_secret_alias": "healthjump_refresh_api_key"
+                        },
+                        "rows_path": "query_result.data.rows",
+                        "columns_path": "query_result.data.columns",
+                        "directory": "practices/healthjump/appointmentdata"
+                    },
+                    "archive": {
+                        "container": "raw",
+                        "directory": "archive/healthjump/appointmentdata"
+                    },
+                    "error": {
+                        "container": "raw",
+                        "directory": "error/healthjump/appointmentdata"
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HEALTHJUMP_APPOINTMENTS",
+                        "load_mode": "append"
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "lamour",
+            "display_name": "Jeffrey LaMour DPM",
+            "site_service_key": "b3b693df-3803-4a3d-a520-e606db62997d",
+            "ingest": [
+                {
+                    "file_type": "Facilities",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetFacilities",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_FACILITIES",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "Physicians",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetPhysicians",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_PHYSICIANS",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "AppointmentTypes",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetAppointmentTypes",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_APPOINTMENT_TYPES",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "Appointments",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetAppointments",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_APPOINTMENTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "UpdatedPatients",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "BeginGetUpdatedPatients",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "startEndDate",
+                        "pagination_type": "beginNext",
+                        "next_endpoint": "NextGetUpdatedPatients",
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_UPDATED_PATIENTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Encounters",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetEncounters",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_ENCOUNTERS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Medications",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetMedications",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_MEDICATIONS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Problems",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetProblems",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_PROBLEMS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Diagnoses",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetDiagnoses",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_DIAGNOSES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "LabResults",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetLabResults",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 168
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_LAB_RESULTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Procedures",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetProcedures",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_PROCEDURES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Immunizations",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetImmunizations",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_IMMUNIZATIONS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Vitals",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetVitals",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_VITALS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "SocialHistory",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetSocialHistory",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_SOCIAL_HISTORY",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Allergies",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetAllergies",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_ALLERGIES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "PatientSummary",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKBridge",
+                        "endpoint": "GetPatientSummary",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.LAMOUR_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_PATIENT_SUMMARY",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Insurances",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKMasterList",
+                        "endpoint": "GetInsurances",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "LAMOUR_INSURANCES",
+                        "load_mode": "overwrite"
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "Comprehensive_Foot_Care_Associates",
+            "display_name": "Comprehensive Foot Care Associates",
+            "site_service_key": "7b2c9090-d49a-46bd-99b0-2d053259f677",
+            "ingest": [
+                {
+                    "file_type": "Facilities",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetFacilities",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_FACILITIES",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "Physicians",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetPhysicians",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_PHYSICIANS",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "AppointmentTypes",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetAppointmentTypes",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_APPOINTMENT_TYPES",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "Appointments",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetAppointments",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_APPOINTMENTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "UpdatedPatients",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "BeginGetUpdatedPatients",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "startEndDate",
+                        "pagination_type": "beginNext",
+                        "next_endpoint": "NextGetUpdatedPatients",
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_UPDATED_PATIENTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Encounters",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetEncounters",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_ENCOUNTERS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Medications",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetMedications",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_MEDICATIONS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Problems",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetProblems",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_PROBLEMS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Diagnoses",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetDiagnoses",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_DIAGNOSES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "LabResults",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetLabResults",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 168
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_LAB_RESULTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Procedures",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetProcedures",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_PROCEDURES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Immunizations",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetImmunizations",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_IMMUNIZATIONS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Vitals",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetVitals",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_VITALS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "SocialHistory",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetSocialHistory",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_SOCIAL_HISTORY",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Allergies",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetAllergies",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_ALLERGIES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "PatientSummary",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKBridge",
+                        "endpoint": "GetPatientSummary",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.CFCA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_PATIENT_SUMMARY",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Insurances",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKMasterList",
+                        "endpoint": "GetInsurances",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "CFCA_INSURANCES",
+                        "load_mode": "overwrite"
+                    }
+                }
+            ]
+        },
+        {
+            "practice_name": "Harris_Foot_and_Ankle",
+            "display_name": "Harris Foot and Ankle",
+            "site_service_key": "c5620078-7528-4de7-86d2-9eb23935cfce",
+            "ingest": [
+                {
+                    "file_type": "Facilities",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetFacilities",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_FACILITIES",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "Physicians",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetPhysicians",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_PHYSICIANS",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "AppointmentTypes",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetAppointmentTypes",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_APPOINTMENT_TYPES",
+                        "load_mode": "overwrite"
+                    }
+                },
+                {
+                    "file_type": "Appointments",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKAppointments",
+                        "endpoint": "GetAppointments",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_APPOINTMENTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "UpdatedPatients",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "BeginGetUpdatedPatients",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "startEndDate",
+                        "pagination_type": "beginNext",
+                        "next_endpoint": "NextGetUpdatedPatients",
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_UPDATED_PATIENTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Encounters",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetEncounters",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 24
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_ENCOUNTERS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Medications",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetMedications",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_MEDICATIONS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Problems",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetProblems",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_PROBLEMS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Diagnoses",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetDiagnoses",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_DIAGNOSES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "LabResults",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetLabResults",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 168
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_LAB_RESULTS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Procedures",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetProcedures",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_PROCEDURES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Immunizations",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetImmunizations",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_IMMUNIZATIONS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Vitals",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetVitals",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": true,
+                        "requires_body_auth": true,
+                        "request_date_format": "dateRange",
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {
+                            "hours_back": 72
+                        }
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_VITALS",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "SocialHistory",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetSocialHistory",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_SOCIAL_HISTORY",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Allergies",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKPatientDataLink",
+                        "endpoint": "GetAllergies",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_ALLERGIES",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "PatientSummary",
+                    "schedule_type": "transactional",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKBridge",
+                        "endpoint": "GetPatientSummary",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "requires_patient_loop": true,
+                        "patient_source_table": "UPPERLINE.RAW_INBOUND_AFFILIATEDATA.HFA_UPDATED_PATIENTS",
+                        "patient_id_column": "\"patientId\"",
+                        "api_delay_ms": 2000,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_PATIENT_SUMMARY",
+                        "load_mode": "append"
+                    }
+                },
+                {
+                    "file_type": "Insurances",
+                    "schedule_type": "reference",
+                    "source_type": "api",
+                    "source": {
+                        "api_base_url": "https://services.lkcloud.com",
+                        "token_url": "https://auth2.lkidentity.com/connect/token",
+                        "service": "LKMasterList",
+                        "endpoint": "GetInsurances",
+                        "auth": {
+                            "oauth_secret_alias": "ellkay_cred"
+                        },
+                        "requires_date_range": false,
+                        "requires_body_auth": true,
+                        "parameters": {}
+                    },
+                    "snowflake": {
+                        "database": "UPPERLINE",
+                        "schema": "RAW_INBOUND_AFFILIATEDATA",
+                        "table": "HFA_INSURANCES",
+                        "load_mode": "overwrite"
+                    }
+                }
+            ]
+        }
+    ],
+    "ArchiveNotification": {
+        "logic_app_url": "https://prod-28.northcentralus.logic.azure.com:443/workflows/5b7115640e194503a3eacf6fa004874b/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=Xe2zUAhAvu8zbw0EQU2KFZyH6NAaJFo32unA75A0u_E"
+    }
+}
